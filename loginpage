@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Login Form</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1-crypto-js.js"></script>
+</head>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #A9C46C;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-form,
+.register-form {
+    width: 300px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 93%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #5D8736;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #809D3C;
+}
+
+.message {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.message a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.message a:hover {
+    text-decoration: underline;
+}
+</style>
+<body>
+     <div class="container">
+        <form class="login-form" id="loginForm">
+            <h2>Login</h2>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+            <p class="message">Not registered? <a href="#" id="registerLink">Create an account</a></p>
+        </form>
+
+        <form class="register-form" id="registerForm" style="display: none;">
+            <h2>Register</h2>
+            <div class="input-group">
+                <label for="newUsername">Username</label>
+                <input type="text" id="newUsername" name="newUsername" required>
+            </div>
+            <div class="input-group">
+                <label for="newPassword">Password</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+            </div>
+            <button type="submit">Register</button>
+            <p class="message">Already registered? <a href="#" id="loginLink">Login</a></p>
+        </form>
+    </div>
+
+
+<script>
+// Function to set a cookie
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // Set expiry date
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/;SameSite=None;Secure";
+}
+
+// Function to get a cookie by name
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+// Function to get all users from the cookies
+function getUsers() {
+    const usersCookie = getCookie('users');
+    return usersCookie ? JSON.parse(usersCookie) : [];
+}
+
+// Function to save users to the cookies
+function saveUsers(users) {
+    setCookie('users', JSON.stringify(users), 7); // Store users cookie for 7 days
+}
+
+// Handle Login form submission
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const users = getUsers(); // Retrieve all users from cookies
+
+    // Find the user that matches the entered credentials
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (user) {
+        alert('Login successful!');
+        window.location.href = "qwerty.html"; // Redirect to a success page
+    } else {
+        alert('Invalid username or password. Please try again.');
+    }
+});
+
+// Handle Registration form submission
+document.getElementById('registerForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting
+
+    const newUsername = document.getElementById('newUsername').value;
+    const newPassword = document.getElementById('newPassword').value;
+
+    const users = getUsers(); // Retrieve all users from cookies
+
+    // Check if the username already exists
+    const existingUser = users.find(u => u.username === newUsername);
+    if (existingUser) {
+        alert('Username already taken, please choose a different one.');
+        return;
+    }
+
+    // Add the new user to the list
+    users.push({ username: newUsername, password: newPassword });
+    saveUsers(users); // Save updated users to cookies
+
+    alert('Registration successful!');
+    toggleForms(); // Switch back to login form
+});
+
+// Link to switch to registration form
+document.getElementById('registerLink').addEventListener('click', function() {
+    toggleForms();
+});
+
+// Link to switch to login form
+document.getElementById('loginLink').addEventListener('click', function() {
+    toggleForms();
+});
+
+// Function to toggle between login and registration forms
+function toggleForms() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+    } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    }
+}
+</script>
+</body>
+</html>
